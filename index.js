@@ -12,6 +12,7 @@ const express = require("express"),
   ObjectId = require("mongoose").Types.ObjectId,
   mongoose = require("mongoose"),
   bcrypt = require("bcrypt"),
+  path = require("path"),
   jwt = require("jsonwebtoken"),
   bodyParser = require("body-parser"),
   endMw = require("express-end"),
@@ -38,6 +39,13 @@ app.use((err, req, res, next) => {
   const message = err.message || "Internal server error";
 
   res.status(status).json({ error: message });
+});
+
+app.use(express.static(path.join(__dirname, "build")));
+
+// this will run when anyone request on app
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "build", "index.html"));
 });
 
 app.post("/create-author", async (req, res, next) => {
@@ -139,6 +147,7 @@ app.post("/create-post", auth, async (req, res, next) => {
     const data = await newPost.save();
     res.status(200).json({ data, message: "Posted successfully" });
   } catch (error) {
+    console.log(error)
     return res.status(500).json({ error: "Server Error" });
   }
 });
